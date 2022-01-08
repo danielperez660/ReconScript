@@ -1,2 +1,2 @@
 # ReconScript
-Recond script following XSS Rat bug bounty methodology
+Recon script following XSS Rat bug bounty methodology
