@@ -4,7 +4,7 @@ import json
 
 parent_directory = None
 
-def settup(domain):
+def setup(domain):
     global parent_directory
     try:
         with open("config.json", "r") as file:
@@ -20,11 +20,18 @@ def settup(domain):
     path = os.path.join(parent, directory)
     parent_directory = path + "/"
 
+    flyover = os.path.join(path, 'flyover')
+
     try:
         os.makedirs(path)
         print(f"[+] Created directory for {domain} at {path}")
     except FileExistsError:
-        return
+        pass
+
+    try:
+        os.mkdir(flyover)
+    except FileExistsError:
+        pass
 
 def subdomain_enum(domain):
     print(f"[+] Enumerating subdomains for {domain}")
@@ -43,6 +50,19 @@ def probe(subdomains):
         file.write('\n')
     print(f"[+] Found {len(probed)} http/https servers (saved to servers.txt)")
     return probed
+
+def flyover(subdomains):
+    print("[+] Starting subdomain flyover")
+    cat = subprocess.Popen(
+                    ["cat", subdomains],
+                    stdout=subprocess.PIPE
+                )
+    subprocess.Popen(
+                    ["aquatone", "-out", f"{parent_directory}flyover"],
+                    stdout=cat.stdin
+                )
+    print(f"[+] Results of flyover stored in {parent_directory}flyover")
+    return
 
 def get_list_return(commands, stdin=None):
     if stdin:
@@ -68,6 +88,7 @@ def get_list_return(commands, stdin=None):
     output = out.split()
     return output
 
-settup("owasp.org")
+setup("owasp.org")
 subdomain_list = subdomain_enum("owasp.org")
 probed_list = probe(subdomain_list)
+flyover(probed_list)
