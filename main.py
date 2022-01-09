@@ -40,6 +40,7 @@ def probe(subdomains):
         probed += current
     with open(f'{parent_directory}servers.txt', 'w') as file:
         file.writelines('\n'.join(probed))
+        file.write('\n')
     print(f"[+] Found {len(probed)} http/https servers (saved to servers.txt)")
     return probed
 
