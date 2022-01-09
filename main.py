@@ -14,7 +14,7 @@ def probe(subdomains):
         current = get_list_return(["echo", subdomain, "|", "httprobe"])
         probed += current
     with open('servers.txt', 'w') as file:
-        f.writelines('\n'.join(probed))
+        file.writelines('\n'.join(probed))
     print(f"[+] Found {len(probed)} http/https servers (saved to servers.txt)")
     return probed
 
