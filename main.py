@@ -1,6 +1,19 @@
 import subprocess
 import os
 import json
+import argparse
+
+parser =  argparse.ArgumentParser(description="A bug bounty related enumeration script")
+
+parser.add_argument(
+    '-m',
+    '--method',
+    metavar='',
+    type=str,
+    choices=['enum', 'finder'],
+    help="The method that will be run by the script, either for \
+        enumeration, or for automated bug finding. Allowed values are enum and finder."
+)
 
 parent_directory = None
 
@@ -58,7 +71,7 @@ def flyover():
                         ["cat", f"{parent_directory}/servers.txt"],
                         stdout=subprocess.PIPE
                     )
-        subprocess.Popen(
+        out = subprocess.Popen(
                         ["aquatone", "-out", f"{parent_directory}flyover"],
                         stdin=cat.stdout
                 )
@@ -92,7 +105,19 @@ def get_list_return(commands, stdin=None):
     output = out.split()
     return output
 
-setup("owasp.org")
-subdomain_list = subdomain_enum("owasp.org")
-probed_list = probe(subdomain_list)
-flyover()
+def enum():
+    setup("owasp.org")
+    subdomain_list = subdomain_enum("owasp.org")
+    probe(subdomain_list)
+    flyover()
+
+def finder():
+    return
+
+if __name__ == "__main__":
+    args = parser.parse_args()
+
+    if args.method == "enum":
+        enum()
+    elif args.method == "finder":
+        finder()
