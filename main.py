@@ -2,8 +2,10 @@ import subprocess
 import os
 import json
 
+parent_directory = None
 
 def settup(domain):
+    global parent_directory
     try:
         with open("config.json", "r") as file:
             config = json.load(file)
@@ -16,6 +18,7 @@ def settup(domain):
 
     directory = domain.split(".")[0]
     path = os.path.join(parent, directory)
+    parent_directory = path + "/"
 
     try:
         os.makedirs(path)
@@ -25,7 +28,7 @@ def settup(domain):
 
 def subdomain_enum(domain):
     print(f"[+] Enumerating subdomains for {domain}")
-    subdomains = get_list_return(["amass", "enum", "-passive", "-d", domain, "-o", "subdomains.txt"])
+    subdomains = get_list_return(["amass", "enum", "-passive", "-d", domain, "-o", f"{parent_directory}subdomains.txt"])
     print(f"[+] Found {len(subdomains)} subdomains (saved to subdomains.txt)")
     return subdomains
 
@@ -35,7 +38,7 @@ def probe(subdomains):
     for subdomain in subdomains:
         current = get_list_return(["httprobe"], subdomain)
         probed += current
-    with open('servers.txt', 'w') as file:
+    with open(f'{parent_directory}servers.txt', 'w') as file:
         file.writelines('\n'.join(probed))
     print(f"[+] Found {len(probed)} http/https servers (saved to servers.txt)")
     return probed
