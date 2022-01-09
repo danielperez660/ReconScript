@@ -1,3 +1,6 @@
 {
-    "recon_dir": "~/BugBounties/"
+    "recon_dir": "~/BugBounties/",
+    "disabled_checks": [
+        
+    ]
 }

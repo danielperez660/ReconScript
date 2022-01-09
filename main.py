@@ -4,6 +4,7 @@ import json
 import argparse
 
 parser =  argparse.ArgumentParser(description="A bug bounty related enumeration script")
+config = None
 
 parser.add_argument(
     '-m',
@@ -19,6 +20,7 @@ parent_directory = None
 
 def setup(domain):
     global parent_directory
+    global config
     try:
         with open("config.json", "r") as file:
             config = json.load(file)
@@ -49,42 +51,47 @@ def setup(domain):
 def subdomain_enum(domain):
     print(f"[+] Enumerating subdomains for {domain}")
     subdomains = get_list_return(["amass", "enum", "-passive", "-d", domain, "-o", f"{parent_directory}subdomains.txt"])
-    print(f"[+] Found {len(subdomains)} subdomains (saved to subdomains.txt)")
+    print(f"[+] Found {len(subdomains)} subdomains, results stored in {parent_directory}subdomains.txt")
     return subdomains
 
-def probe(subdomains):
+def probe():
     print("[+] Probing your subdomains for http/https servers")
-    probed = []
-    for subdomain in subdomains:
-        current = get_list_return(["httprobe"], subdomain)
-        probed += current
+    probed = get_list_return(
+                        ["httprobe"],
+                        ["cat", f"{parent_directory}subdomains.txt"]
+                    )
     with open(f'{parent_directory}servers.txt', 'w') as file:
         file.writelines('\n'.join(probed))
         file.write('\n')
-    print(f"[+] Found {len(probed)} http/https servers (saved to servers.txt)")
+    print(f"[+] Found {len(probed)} http/https servers, results stored in {parent_directory}servers.txt")
     return probed
 
 def flyover():
     print("[+] Starting subdomain flyover")
     try:
-        cat = subprocess.Popen(
-                        ["cat", f"{parent_directory}/servers.txt"],
-                        stdout=subprocess.PIPE
-                    )
-        out = subprocess.Popen(
-                        ["aquatone", "-out", f"{parent_directory}flyover"],
-                        stdin=cat.stdout
-                )
+        get_list_return(
+                ["aquatone", "-out", f"{parent_directory}flyover", "-silent"],
+                ["cat", f"{parent_directory}servers.txt"]
+        )
         print(f"[+] Results of flyover stored in {parent_directory}flyover")
     except FileNotFoundError:
         print(f"[-] The file servers.txt was not found in {parent_directory}")
 
     return
 
+def response_codes():
+    print("[+] Starting response code probing")
+
+    get_list_return(
+        ["httpx", "-sc", "-o", f"{parent_directory}response_codes.txt"],
+        ["cat", f"{parent_directory}servers.txt"],
+    )
+    print(f"[+] Results of code probing stored in {parent_directory}response_codes.txt")
+
 def get_list_return(commands, stdin=None):
     if stdin:
         echo = subprocess.Popen(
-                    ["echo", stdin],
+                    stdin,
                     stdout=subprocess.PIPE
                 )
 
@@ -107,8 +114,9 @@ def get_list_return(commands, stdin=None):
 
 def enum():
     setup("owasp.org")
-    subdomain_list = subdomain_enum("owasp.org")
-    probe(subdomain_list)
+    subdomain_enum("owasp.org")
+    probe()
+    response_codes()
     flyover()
 
 def finder():

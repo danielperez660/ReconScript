@@ -1,6 +1,7 @@
 # Other to be implemented
 * Add check to see if file exists rather than having function rely on previous function
 * Add flags to be able to run single tool at a given moment 
+* Add disabled script section in config file
 
 ## Automated
 1. Subdomain teakeover checks

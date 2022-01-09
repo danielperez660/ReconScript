@@ -1,6 +1,7 @@
 # Files created by the script during testing
 subdomains.txt
 servers.txt
+test.py
 
 *.swp
 
