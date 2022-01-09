@@ -1,8 +1,8 @@
 Based on thread: https://twitter.com/theXSSrat/status/1479535804074573826
 
 Automated
-1) Subdomain enum
-2) httprobe
+1) Subdomain enum ✓
+2) httprobe ✓
 3) subdomain flyover and takeover checks
 4) Nuclei (develop your own templates as well)
 5) Portscan

@@ -1,7 +1,29 @@
 import subprocess
+import os
+import json
 
-def subdomain_enum():
-    domain = "owasp.org"
+
+def settup(domain):
+    try:
+        with open("config.json", "r") as file:
+            config = json.load(file)
+
+        parent = os.path.expanduser(config["recon_dir"])
+
+    except FileNotFoundError:
+        print("[-] Config file not found")
+        parent = os.path.expanduser("~/BugBounties/")
+
+    directory = domain.split(".")[0]
+    path = os.path.join(parent, directory)
+
+    try:
+        os.makedirs(path)
+        print(f"[+] Created directory for {domain} at {path}")
+    except FileExistsError:
+        return
+
+def subdomain_enum(domain):
     print(f"[+] Enumerating subdomains for {domain}")
     subdomains = get_list_return(["amass", "enum", "-passive", "-d", domain, "-o", "subdomains.txt"])
     print(f"[+] Found {len(subdomains)} subdomains (saved to subdomains.txt)")
@@ -42,5 +64,6 @@ def get_list_return(commands, stdin=None):
     output = out.split()
     return output
 
-subdomain_list = subdomain_enum()
+settup("owasp.org")
+subdomain_list = subdomain_enum("owasp.org")
 probed_list = probe(subdomain_list)
