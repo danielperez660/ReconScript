@@ -11,7 +11,7 @@
 ## Automated
 1. Subdomain enum ✓
 2. httprobe ✓
-3. subdomain flyover
+3. subdomain flyover ✓
 4. Nuclei (develop your own templates as well)
 5. Portscan
 6. Write subdomains to database for later use

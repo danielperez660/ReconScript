@@ -51,17 +51,21 @@ def probe(subdomains):
     print(f"[+] Found {len(probed)} http/https servers (saved to servers.txt)")
     return probed
 
-def flyover(subdomains):
+def flyover():
     print("[+] Starting subdomain flyover")
-    cat = subprocess.Popen(
-                    ["cat", subdomains],
-                    stdout=subprocess.PIPE
+    try:
+        cat = subprocess.Popen(
+                        ["cat", f"{parent_directory}/servers.txt"],
+                        stdout=subprocess.PIPE
+                    )
+        subprocess.Popen(
+                        ["aquatone", "-out", f"{parent_directory}flyover"],
+                        stdin=cat.stdout
                 )
-    subprocess.Popen(
-                    ["aquatone", "-out", f"{parent_directory}flyover"],
-                    stdout=cat.stdin
-                )
-    print(f"[+] Results of flyover stored in {parent_directory}flyover")
+        print(f"[+] Results of flyover stored in {parent_directory}flyover")
+    except FileNotFoundError:
+        print(f"[-] The file servers.txt was not found in {parent_directory}")
+
     return
 
 def get_list_return(commands, stdin=None):
@@ -91,4 +95,4 @@ def get_list_return(commands, stdin=None):
 setup("owasp.org")
 subdomain_list = subdomain_enum("owasp.org")
 probed_list = probe(subdomain_list)
-flyover(probed_list)
+flyover()
