@@ -20,7 +20,7 @@ parser.add_argument(
     '--method',
     metavar='',
     type=str,
-    choices=['enum', 'finder'],
+    choices=['enum', 'finder', "all"],
     help="The method that will be run by the script, either for \
         enumeration, or for automated bug finding. To run finder \
         the files created by enum need to exist (servers.txt & \
@@ -180,4 +180,7 @@ if __name__ == "__main__":
     if args.method == "enum":
         enum(args.domain)
     elif args.method == "finder":
+        finder()
+    elif args.method == "all":
+        enum(args.domain)
         finder()
