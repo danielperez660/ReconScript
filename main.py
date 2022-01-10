@@ -2,8 +2,14 @@ import subprocess
 import os
 import json
 import argparse
+import re
 
-parser =  argparse.ArgumentParser(description="A bug bounty related enumeration script")
+def domain_regex(arg_value, pat=re.compile(r"^(((?!\-))(xn\-\-)?[a-z0-9\-_]{0,61}[a-z0-9]{1,1}\.)*(xn\-\-)?([a-z0-9\-]{1,61}|[a-z0-9\-]{1,30})\.[a-z]{2,}$")):
+    if not pat.match(arg_value):
+        raise argparse.ArgumentTypeError
+    return arg_value
+
+parser =  argparse.ArgumentParser(description="A bug bounty related enumeration script.")
 config = None
 
 parser.add_argument(
@@ -15,6 +21,16 @@ parser.add_argument(
     help="The method that will be run by the script, either for \
         enumeration, or for automated bug finding. Allowed values are enum and finder."
 )
+
+parser.add_argument(
+    '-d',
+    '--domain',
+    metavar='',
+    type=domain_regex,
+    required=True,
+    help="The domain you wish to carry a scan out on."
+)
+
 
 parent_directory = None
 
@@ -112,9 +128,9 @@ def get_list_return(commands, stdin=None):
     output = out.split()
     return output
 
-def enum():
-    setup("owasp.org")
-    subdomain_enum("owasp.org")
+def enum(domain):
+    setup(domain)
+    subdomain_enum(domain)
     probe()
     response_codes()
     flyover()
@@ -126,6 +142,6 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.method == "enum":
-        enum()
+        enum(args.domain)
     elif args.method == "finder":
         finder()
