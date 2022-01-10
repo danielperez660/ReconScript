@@ -142,9 +142,8 @@ def response_codes():
     )
     print(f"[+] Results of code probing stored in {parent_directory}response_codes.txt")
 
-def enum(domain):
-    setup(domain)
-    subdomain_enum(domain)
+def enum():
+    subdomain_enum()
     probe()
     response_codes()
     flyover()
@@ -152,6 +151,12 @@ def enum(domain):
 ### Finder Methods ####
 
 def subdomain_takeover():
+    print("[+] Starting subdomain takeover checks")
+    
+    if not os.path.exists(f"{parent_directory}subdomain_takeover.txt"):
+        with open(f"{parent_directory}subdomain_takeover.txt", 'w'):
+            pass
+
     get_list_return(
         [
             "subjack",
@@ -160,9 +165,13 @@ def subdomain_takeover():
             "-o",
             f"{parent_directory}subdomain_takeover.txt",
             "-a",
-            "-ssl"
+            "-ssl",
+            '-v'
             ],
     )
+    
+    print(f"[+] Results of takeover checks stored in {parent_directory}subdomain_takeover.txt")
+
 
 def nuclei_scans():
     return
@@ -176,6 +185,7 @@ def finder():
 
 if __name__ == "__main__":
     args = parser.parse_args()
+    setup(args.domain)
 
     if args.method == "enum":
         enum(args.domain)
