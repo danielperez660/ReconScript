@@ -22,7 +22,19 @@ parser.add_argument(
     type=str,
     choices=['enum', 'finder'],
     help="The method that will be run by the script, either for \
-        enumeration, or for automated bug finding. Allowed values are enum and finder."
+        enumeration, or for automated bug finding. To run finder \
+        the files created by enum need to exist (servers.txt & \
+        subdomains.txt). Allowed values are enum and finder."
+)
+
+parser.add_argument(
+    '-t',
+    '--threads',
+    metavar='',
+    type=int,
+    help="If the tools in use have multithreading options, \
+        this will allow you to set the number of threads you \
+        want to work with."
 )
 
 parser.add_argument(
@@ -140,10 +152,24 @@ def enum(domain):
 ### Finder Methods ####
 
 def subdomain_takeover():
+    get_list_return(
+        [
+            "subjack",
+            "-w",
+            f"{parent_directory}subdomains.txt",
+            "-o",
+            f"{parent_directory}subdomain_takeover.txt",
+            "-a",
+            "-ssl"
+            ],
+    )
+
+def nuclei_scans():
     return
 
 def finder():
     subdomain_takeover()
+    nuclei_scans()
     return
 
 ### Script Entrypoint ####
