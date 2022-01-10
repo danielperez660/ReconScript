@@ -4,6 +4,8 @@ import json
 import argparse
 import re
 
+### General Methods & Setup ####
+
 def domain_regex(arg_value, pat=re.compile(r"^(((?!\-))(xn\-\-)?[a-z0-9\-_]{0,61}[a-z0-9]{1,1}\.)*(xn\-\-)?([a-z0-9\-]{1,61}|[a-z0-9\-]{1,30})\.[a-z]{2,}$")):
     if not pat.match(arg_value):
         raise argparse.ArgumentTypeError
@@ -11,6 +13,7 @@ def domain_regex(arg_value, pat=re.compile(r"^(((?!\-))(xn\-\-)?[a-z0-9\-_]{0,61
 
 parser =  argparse.ArgumentParser(description="A bug bounty related enumeration script.")
 config = None
+parent_directory = None
 
 parser.add_argument(
     '-m',
@@ -30,9 +33,6 @@ parser.add_argument(
     required=True,
     help="The domain you wish to carry a scan out on."
 )
-
-
-parent_directory = None
 
 def setup(domain):
     global parent_directory
@@ -63,6 +63,32 @@ def setup(domain):
         os.mkdir(flyover)
     except FileExistsError:
         pass
+
+def get_list_return(commands, stdin=None):
+    if stdin:
+        echo = subprocess.Popen(
+                    stdin,
+                    stdout=subprocess.PIPE
+                )
+
+        results = subprocess.Popen(
+                    commands,
+                    stdin=echo.stdout,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE
+                )
+    else:
+        results = subprocess.Popen(
+                    commands,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE
+                )
+    out, _ = results.communicate()
+    out = out.strip().decode("utf-8")
+    output = out.split()
+    return output
+
+### Enum Methods ####
 
 def subdomain_enum(domain):
     print(f"[+] Enumerating subdomains for {domain}")
@@ -104,30 +130,6 @@ def response_codes():
     )
     print(f"[+] Results of code probing stored in {parent_directory}response_codes.txt")
 
-def get_list_return(commands, stdin=None):
-    if stdin:
-        echo = subprocess.Popen(
-                    stdin,
-                    stdout=subprocess.PIPE
-                )
-
-        results = subprocess.Popen(
-                    commands,
-                    stdin=echo.stdout,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE
-                )
-    else:
-        results = subprocess.Popen(
-                    commands,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE
-                )
-    out, _ = results.communicate()
-    out = out.strip().decode("utf-8")
-    output = out.split()
-    return output
-
 def enum(domain):
     setup(domain)
     subdomain_enum(domain)
@@ -135,8 +137,16 @@ def enum(domain):
     response_codes()
     flyover()
 
-def finder():
+### Finder Methods ####
+
+def subdomain_takeover():
     return
+
+def finder():
+    subdomain_takeover()
+    return
+
+### Script Entrypoint ####
 
 if __name__ == "__main__":
     args = parser.parse_args()
