@@ -9,3 +9,4 @@ Recon script following XSS Rat bug bounty methodology
 
 ## Required Tools for Finder
  - [subjack](https://github.com/haccer/subjack)
+ - [nuclei](https://github.com/projectdiscovery/nuclei)

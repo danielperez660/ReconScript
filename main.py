@@ -3,6 +3,8 @@ import os
 import json
 import argparse
 import re
+from git import Repo
+from git.exc import GitCommandError
 
 ### General Methods & Setup ####
 
@@ -25,6 +27,15 @@ parser.add_argument(
         enumeration, or for automated bug finding. To run finder \
         the files created by enum need to exist (servers.txt & \
         subdomains.txt). Allowed values are enum and finder."
+)
+
+parser.add_argument(
+    '-u',
+    '--update',
+    action='store_true',
+    help="Setting this flag will update the nuclei repository for \
+        open-soure templates we use, ensuring that we are up to date\
+        with the most recent templates available."
 )
 
 parser.add_argument(
@@ -76,6 +87,21 @@ def setup(domain):
     except FileExistsError:
         pass
 
+def pull_repo():
+    print("[+] Updating nuclei template repo")
+
+    git_url = "git@github.com:projectdiscovery/nuclei-templates.git"
+    repo_dir = f"{parent_directory}../dependencies/templates"
+
+    try:
+        Repo.clone_from(git_url, repo_dir)
+    except GitCommandError: 
+        repo = Repo(repo_dir)
+        o = repo.remotes.origin
+        o.pull()
+        
+    print("[+] Update complete")
+    
 def get_list_return(commands, stdin=None):
     if stdin:
         echo = subprocess.Popen(
@@ -142,8 +168,8 @@ def response_codes():
     )
     print(f"[+] Results of code probing stored in {parent_directory}response_codes.txt")
 
-def enum():
-    subdomain_enum()
+def enum(domain):
+    subdomain_enum(domain)
     probe()
     response_codes()
     flyover()
@@ -174,6 +200,11 @@ def subdomain_takeover():
 
 
 def nuclei_scans():
+
+    get_list_return(
+        ["nuclei", "-t", "template-file", "-l", f"{parent_directory}servers.txt"],
+    )
+
     return
 
 def finder():
@@ -187,6 +218,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
     setup(args.domain)
 
+    if args.update:
+        pull_repo()
     if args.method == "enum":
         enum(args.domain)
     elif args.method == "finder":
