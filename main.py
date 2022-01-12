@@ -207,9 +207,10 @@ def nuclei_scans():
 
     return
 
+
 def finder():
     subdomain_takeover()
-    nuclei_scans()
+    # nuclei_scans()
     return
 
 ### Script Entrypoint ####
