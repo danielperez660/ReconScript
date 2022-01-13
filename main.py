@@ -70,7 +70,7 @@ def setup(domain):
         print("[-] Config file not found")
         parent = os.path.expanduser("~/BugBounties/")
 
-    directory = domain.split(".")[0]
+    directory = domain
     path = os.path.join(parent, directory)
     parent_directory = path + "/"
 
