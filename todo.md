@@ -5,7 +5,7 @@
 * Implement threading flag completeley
 
 ## Automated
-1. Subdomain teakeover checks
+1. Subdomain teakeover checks ✓
 2. Open redirect checks [source](https://thexssrat.medium.com/open-redirects-easy-to-detect-hard-to-fix-8eb535611cd4)
 
 # Based on [thread](https://twitter.com/theXSSrat/status/1479535804074573826)

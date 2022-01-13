@@ -26,7 +26,7 @@ parser.add_argument(
     help="The method that will be run by the script, either for \
         enumeration, or for automated bug finding. To run finder \
         the files created by enum need to exist (servers.txt & \
-        subdomains.txt). Allowed values are enum and finder."
+        subdomains.txt). Allowed values are enum, finder, and all."
 )
 
 parser.add_argument(
