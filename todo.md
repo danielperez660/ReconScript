@@ -3,6 +3,7 @@
 * Add flags to be able to run single tool at a given moment 
 * Add disabled script section in config file
 * Implement threading flag completeley
+* Look into [this thread](https://twitter.com/rootxyash/status/1482340169542172678?s=20)
 
 ## Automated
 1. Subdomain teakeover checks ✓
