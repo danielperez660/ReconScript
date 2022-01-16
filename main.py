@@ -16,6 +16,7 @@ def domain_regex(arg_value, pat=re.compile(r"^(((?!\-))(xn\-\-)?[a-z0-9\-_]{0,61
 parser =  argparse.ArgumentParser(description="A bug bounty related enumeration script.")
 config = None
 parent_directory = None
+custom_location = False
 
 parser.add_argument(
     '-m',
@@ -57,9 +58,22 @@ parser.add_argument(
     help="The domain you wish to carry a scan out on."
 )
 
+parser.add_argument(
+    '-o',
+    '--output',
+    metavar='',
+    type=str,
+    help="This will be the name of the directory in which your results \
+            will be stored. If this is not set, the directory name will just \
+            be the domain name without the TLD appended."
+)
+
 def setup(domain):
     global parent_directory
     global config
+
+    args = parser.parse_args()
+
     try:
         with open("config.json", "r") as file:
             config = json.load(file)
@@ -70,20 +84,20 @@ def setup(domain):
         print("[-] Config file not found")
         parent = os.path.expanduser("~/BugBounties/")
 
-    directory = domain
-    path = os.path.join(parent, directory)
+    if args.output:
+        directory = args.output
+        path = os.path.join(parent, directory)
+        path = os.path.join(path, domain)
+    else:
+        directory = domain
+        path = os.path.join(parent, directory)
+
     parent_directory = path + "/"
 
-    flyover = os.path.join(path, 'flyover')
 
     try:
         os.makedirs(path)
         print(f"[+] Created directory for {domain} at {path}")
-    except FileExistsError:
-        pass
-
-    try:
-        os.mkdir(flyover)
     except FileExistsError:
         pass
 
@@ -148,6 +162,13 @@ def probe():
 
 def flyover():
     print("[+] Starting subdomain flyover")
+    flyover = os.path.join(parent_directory, 'flyover')
+
+    try:
+        os.mkdir(flyover)
+    except FileExistsError:
+        pass
+
     try:
         get_list_return(
                 ["aquatone", "-out", f"{parent_directory}flyover", "-silent"],
