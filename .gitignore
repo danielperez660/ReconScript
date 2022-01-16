@@ -2,6 +2,8 @@
 subdomains.txt
 servers.txt
 test.py
+test.txt
+
 
 *.swp
 

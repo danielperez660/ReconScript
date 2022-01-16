@@ -8,6 +8,11 @@ from git.exc import GitCommandError
 
 ### General Methods & Setup ####
 
+def txt_regex(arg_value, pat=re.compile(r"^.*\.txt")):
+    if not pat.match(arg_value):
+        raise argparse.ArgumentTypeError
+    return arg_value
+
 def domain_regex(arg_value, pat=re.compile(r"^(((?!\-))(xn\-\-)?[a-z0-9\-_]{0,61}[a-z0-9]{1,1}\.)*(xn\-\-)?([a-z0-9\-]{1,61}|[a-z0-9\-]{1,30})\.[a-z]{2,}$")):
     if not pat.match(arg_value):
         raise argparse.ArgumentTypeError
@@ -17,6 +22,7 @@ parser =  argparse.ArgumentParser(description="A bug bounty related enumeration 
 config = None
 parent_directory = None
 custom_location = False
+group = parser.add_mutually_exclusive_group(required=True)
 
 parser.add_argument(
     '-m',
@@ -49,13 +55,22 @@ parser.add_argument(
         want to work with."
 )
 
-parser.add_argument(
+group.add_argument(
     '-d',
     '--domain',
     metavar='',
     type=domain_regex,
-    required=True,
-    help="The domain you wish to carry a scan out on."
+    help="The domain you wish to carry a scan out on. Exclusive\
+        with -dl."
+)
+
+group.add_argument(
+    '-dl',
+    '--domain_list',
+    metavar='',
+    type=txt_regex,
+    help="A txt file of domains which you wish to enumerate.\
+        must be separated by a newline. Exclusive with -d."
 )
 
 parser.add_argument(
@@ -238,14 +253,37 @@ def finder():
 
 if __name__ == "__main__":
     args = parser.parse_args()
-    setup(args.domain)
-
     if args.update:
         pull_repo()
-    if args.method == "enum":
-        enum(args.domain)
-    elif args.method == "finder":
-        finder()
-    elif args.method == "all":
-        enum(args.domain)
-        finder()
+
+    if args.domain:
+        setup(args.domain)
+        if args.method == "enum":
+            enum(args.domain)
+        elif args.method == "finder":
+            finder()
+        elif args.method == "all":
+            enum(args.domain)
+            finder()
+
+    elif args.domain_list:
+        try:
+            with open(args.domain_list, "r") as file:
+                for line in file:
+                    domain = line.strip()
+
+                    print(f"[+] Working on {domain} from {args.domain_list}")
+
+                    setup(domain)
+                    if args.method == "enum":
+                        enum(domain)
+                    elif args.method == "finder":
+                        finder()
+                    elif args.method == "all":
+                        enum(domain)
+                        finder()
+
+                    print("")
+        except FileNotFoundError:
+            print(f"[-] The domain list file {args.domain_list} does not exist.")
+            exit(1)
