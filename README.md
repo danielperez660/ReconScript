@@ -1,6 +1,7 @@
 # ReconScript
 Recon script following XSS Rat bug bounty methodology
 
+Usage: main.py enum domain.com
 
 ## Required Tools for Enum
  - [Amass](https://github.com/OWASP/Amass)
