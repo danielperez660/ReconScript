@@ -2,6 +2,7 @@
 Recon script following XSS Rat bug bounty methodology
 
 Usage: main.py enum domain.com
+ - This will automatically create a directory to store the enum info under the domain name
 
 ## Required Tools for Enum
  - [Amass](https://github.com/OWASP/Amass)
